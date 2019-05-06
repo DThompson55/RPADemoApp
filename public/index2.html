@@ -47,13 +47,13 @@
 $(document).ready(function(){
 	var x = Math.floor((Math.random()*10))+1;
 	var y = Math.floor((Math.random()*16))+1;
-	var abc = 'abcdefghijklmnopqrstuvwyz'
+	var abc = 'abcdefghijlmnopqrstuvwyz'
 	var s = "";
 	$("#toprow").append("<div class='col-xs-1'>-</div><div class='col-xs-1'>A</div><div class='col-xs-1'>B</div><div class='col-xs-1'>C</div><div class='col-xs-1'>D</div><div class='col-xs-1'>E</div><div class='col-xs-1'>F</div><div class='col-xs-1'>G</div><div class='col-xs-1'>H</div><div class='col-xs-1'>I</div><div class='col-xs-1'>J</div><div class='col-xs-1'>K</div>")	
 	for (var j = 1 ; j < 17 ; j++ ){
 		s = s+"<div class='row'><div class='col-xs-1'>"+(17-j)+"</div>";
 		for (var i = 1 ; i < 12 ; i++ ){
-			var n = Math.floor((Math.random()*25));
+			var n = Math.floor((Math.random()*24));
 
 			if ( (x == i) && (y == j) ){
 				s = s+"<div class='col-xs-1'>X</div>";
