@@ -1,4 +1,6 @@
+'use strict';
 /*eslint-env node*/
+
 
 //------------------------------------------------------------------------------
 // node.js starter application for Bluemix
@@ -6,10 +8,6 @@
 
 // This application uses express as its web server
 // for more info, see: http://expressjs.com
-
-// cfenv provides access to your Cloud Foundry environment
-// for more info, see: https://www.npmjs.com/package/cfenv
-//var cfenv = require('cfenv');
 
 var express = require('express');
 var multer = require('multer');
@@ -28,8 +26,17 @@ var zipVerify = require('./uspsverify/services.js');
 // serve the files out of ./public as our main files
 app.use(express.static(__dirname + '/public'));
 
-// get the app environment from Cloud Foundry
-//var appEnv = cfenv.getAppEnv();
+const minimist = require('minimist');
+let args = minimist(process.argv.slice(2), {  
+    alias: {
+        h: 'help',
+        v: 'version',
+        p: 'port'
+    }
+});
+var port = args.p || 6006;
+if ( args.h ) console.log("Sorry, no help for you today\nBut use -p #### to set a port number, otherwise it defaults to 6006")
+if ( args.v ) console.log("Whatever version is the right one")
 var uploadsToday = 0;
 
 zipVerify.init(app);
@@ -64,8 +71,14 @@ app.post('/formaction', function (req, res) {
 });
 
 
+//---------------------------------------------------------------------
+app.post('/index.html', function (req, res) {
+	res.redirect("/")
+});
+
+
 // start server on the specified port and binding host
-app.listen(6006, '0.0.0.0', function() {
+app.listen(port, '0.0.0.0', function() {
   // print a message when the server starts listening
-  console.log("server starting on " + "http://localhost:6006/");
+  console.log("server starting on " + "http://localhost:"+port);
 });
