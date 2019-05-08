@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.raw({type: function(){return true;}, limit: '5mb'}));
 var fs = require('fs');
 var uniqueFilename = require('unique-filename');
-var zipVerify = require('./uspsverify/services.js');
+var zipVerify = require('./uspsverify/verify.js');
 
 // serve the files out of ./public as our main files
 app.use(express.static(__dirname + '/public'));
@@ -31,15 +31,17 @@ let args = minimist(process.argv.slice(2), {
     alias: {
         h: 'help',
         v: 'version',
-        p: 'port'
+        p: 'port',
+        u: 'uspscreds'
     }
 });
 var port = args.p || 6006;
-if ( args.h ) console.log("Sorry, no help for you today\nBut use -p #### to set a port number, otherwise it defaults to 6006")
+if ( args.u ) console.log("USPS Creds set to "+args.u)
+if ( args.h ) console.log("Sorry, no help for you today\nBut use -p #### to set a port number, otherwise it defaults to 6006\nUse -u to set USPS creds if you want to use zipcode verify")
 if ( args.v ) console.log("Whatever version is the right one")
 var uploadsToday = 0;
 
-zipVerify.init(app);
+zipVerify.init(app, args.u);
 
 //---------------------------------------------------------------------
 app.post('/formaction', function (req, res) {

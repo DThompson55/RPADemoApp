@@ -1,17 +1,43 @@
+'use strict';
 var js2xml = require('js2xmlparser');
 var Client = require('node-rest-client').Client;
 var client = new Client();
 
-const USPSUserID = process.env.USPSUserID || "298GUINE6374";
-if (process.env.USPSUserID == null){
-	console.log("If you uncommment the verify method in index.html then");
-	console.log("Please set process.env.USPSUserID to your USPS supplied USERID see: https://www.usps.com/business/web-tools-apis/welcome.htm for details");
+// https://app.swaggerhub.com/apis/dataday/uspsVerify/1.0.0#/verify/verify
+// sample http://localhost:3000/verify?addr={%22Address1%22:%223114%20Church%22,%22Address2%22:%22%22,%22City%22:%22Evanston%22,%22State%22:%20%22IL%22,%22ZIP%22:%22%22}
+var uspscred = "";
+function init(app, creds){
+	uspscred = creds || process.env.USPSUserID;
+	
+	app.post("/zipverify", function(req, res) {
+var	addr = req.body;
+	verify(addr, function (address) {
+  		    var verified = (JSON.parse(JSON.stringify(address).replace(/^................/g, '{')));
+  		    verified.ok = false;
+  		    if ( verified.Zip5 === addr.Zip5){
+  		    	verified.ok = true;	
+  		    }
+			res.status(200).send(verified);
+	});
+});
 }
 
+var warned = false;
 function verify(address, callback){
-	console.log("entering verify");
+	if ( uspscred == null ){
+		if (!warned) {
+			warned = true;
+			console.log("USPS Zip Validate is disabled");
+			console.log("No biggie... In order to try it either");
+			console.log(" set process.env.USPSUserID to your USPS supplied USERID ");
+			console.log(" or set commandline -u #### to your USPS supplied USERID ");
+			console.log(" see: https://www.usps.com/business/web-tools-apis/welcome.htm for details");
+		} 
+		return;
+	}
+
 	var verifyObj = {
-		"AddressValidateRequest": {"@":{"USERID":"298GUINE6374"},
+		"AddressValidateRequest": {"@":{"USERID":uspscred},
 	    "Address":{
 	    	"@": {
             "ID": "0"
@@ -34,15 +60,15 @@ client.get('http://production.shippingapis.com/ShippingAPITest.dll?API=Verify&XM
 });
 }
 
-/*
+ /*
  * test code
- * 
+ *
 var addr = {"Address1": "3614 Church",
 "Address2": "",
 "City": "Evanston",
 "State": "IL",
 "ZIP": ""};
-verify(addr, function (address) {
+verify(addr, "298GUINE6374", function (address) {
     // parsed response body as js object
     console.log(address);
     // raw response
@@ -51,5 +77,6 @@ verify(addr, function (address) {
  */
 
 module.exports = {
-		verifyAddress:  verify
+		verifyAddress:  verify,
+				 init:  init
 	};
